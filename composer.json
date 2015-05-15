@@ -1,0 +1,23 @@
+{
+    "name": "abcms/yii2-multilanguage",
+    "type": "yii2-extension",
+    "description": "",
+    "version": "dev-master",
+    "keywords": [
+    ],
+    "authors": [
+    ],
+    "support": {
+    },
+    "require": {
+        "yiisoft/yii2": "*",
+        "abcms/library": "*"
+    },
+    "autoload": {
+        "psr-4": {"abcms\\multilanguage\\": ""}
+    },
+    "bin": [
+    ],
+    "extra": {
+    }
+}
