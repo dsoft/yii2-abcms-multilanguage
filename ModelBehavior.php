@@ -40,7 +40,6 @@ class ModelBehavior extends \yii\base\Behavior
         return [
             BaseActiveRecord::EVENT_AFTER_INSERT => 'saveTranslation',
             BaseActiveRecord::EVENT_AFTER_UPDATE => 'saveTranslation',
-            BaseActiveRecord::EVENT_AFTER_FIND => 'afterFind',
         ];
     }
 
@@ -165,11 +164,6 @@ class ModelBehavior extends \yii\base\Behavior
         $model = clone $owner;
         $model->attributes = $attributes;
         return $model;
-    }
-
-    public function afterFind()
-    {
-        
     }
 
 }

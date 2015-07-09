@@ -58,15 +58,15 @@ class WidgetBase extends Widget
     }
 
     /**
-     * Validate an array of languages, it should contain a code and a name
+     * Validate an array of languages, it should contain a code as key and a name as value
      * @param array $languages
      * @return boolean
      */
     private function validateLanguages($languages)
     {
         if(is_array($languages)) {
-            foreach($languages as $language) {
-                if(!isset($language['code']) || !isset($language['name'])) {
+            foreach($languages as $code=>$language) {
+                if(!is_string($code)){
                     return false;
                 }
             }
@@ -85,13 +85,10 @@ class WidgetBase extends Widget
     {
         $languages = $this->getAllApplicationLanguages();
         $default = $this->getDefaultLanguage();
-        $array = [];
-        foreach($languages as $language) {
-            if($language['code'] != $default) {
-                $array[] = $language;
-            }
+        if(isset($languages[$default])){
+            unset($languages[$default]);
         }
-        return $array;
+        return $languages;
     }
 
     /**
@@ -100,10 +97,7 @@ class WidgetBase extends Widget
      */
     private function getAllApplicationLanguages()
     {
-        $array = [
-            ['name' => 'English', 'code' => 'en'],
-            ['name' => 'Arabic', 'code' => 'ar'],
-        ];
+        $array = isset(Yii::$app->params['languages']) ? Yii::$app->params['languages'] : [];
         return $array;
     }
 
@@ -113,7 +107,7 @@ class WidgetBase extends Widget
      */
     private function getDefaultLanguage()
     {
-        $lang = 'en';
+        $lang = Yii::$app->sourceLanguage;
         return $lang;
     }
 

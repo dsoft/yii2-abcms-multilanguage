@@ -25,12 +25,17 @@ class TranslationForm extends WidgetBase
     public function run()
     {
         $languages = $this->languages;
+        /**
+         * @var array array containing language code as key and related fields as value
+         */
+        $fieldsArray = [];
         foreach($languages as $key => $language) {
-            $fields = $this->createLanguageFields($language['code']);
-            $languages[$key]['fields'] = $fields;
+            $fields = $this->createLanguageFields($key);
+            $fieldsArray[$key] = $fields;
         }
         echo $this->render('translation-form', [
             'languages' => $languages,
+            'fieldsArray' => $fieldsArray,
         ]);
     }
 
