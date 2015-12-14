@@ -24,7 +24,7 @@ class ModelBehavior extends \yii\base\Behavior
     public function init()
     {
         parent::init();
-        if(!$this->attributes) {
+        if($this->attributes === null) {
             throw new InvalidConfigException('"attributes" property must be set.');
         }
         if(!is_array($this->attributes)) {
