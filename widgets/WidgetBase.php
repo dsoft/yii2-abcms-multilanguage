@@ -129,6 +129,7 @@ class WidgetBase extends Widget
                 $m->translation = $translation[$field->attribute];
             }
             $field->model = $m;
+            $field->language = $language;
             $field->value = $m->translation;
             $field->attributeExpression = "[$modelId][{$field->attribute}][$language]translation";
             $fields[$key] = $field;

@@ -59,7 +59,12 @@ class ModelBehavior extends \yii\base\Behavior
                 if(isset($post['Translation'][$modelId][$attributeName])) {
                     foreach($post['Translation'][$modelId][$attributeName] as $lang => $array) {
                         if(isset($array['translation'])) {
-                            Translation::commit($modelId, $owner->id, $attributeName, $lang, $array['translation']);
+                            $field->value = $array['translation'];
+                            $field->model = new Translation;
+                            $field->attributeExpression = "[$modelId][$attributeName][$lang]translation";
+                            if($field->validate()){
+                                Translation::commit($modelId, $owner->id, $attributeName, $lang, $field->value);
+                            }
                         }
                     }
                 }
