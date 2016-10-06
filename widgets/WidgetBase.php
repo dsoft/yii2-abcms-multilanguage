@@ -97,8 +97,7 @@ class WidgetBase extends Widget
      */
     private function getAllApplicationLanguages()
     {
-        $array = isset(Yii::$app->params['languages']) ? Yii::$app->params['languages'] : [];
-        return $array;
+        return Yii::$app->multilanguage->getLanguagesList();;
     }
 
     /**

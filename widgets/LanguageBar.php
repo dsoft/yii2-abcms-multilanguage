@@ -33,7 +33,7 @@ class LanguageBar extends Widget
      */
     public function getLanguages()
     {
-        return isset(Yii::$app->params['languages']) ? Yii::$app->params['languages'] : [];
+        return Yii::$app->multilanguage->getLanguagesList();
     }
 
 }
