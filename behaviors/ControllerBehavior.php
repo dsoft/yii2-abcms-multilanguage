@@ -7,21 +7,10 @@ use yii\web\Cookie;
 
 class ControllerBehavior extends \yii\base\Behavior
 {
-
+    
     /**
      * @inheritdoc
      */
-    public function init()
-    {
-        parent::init();
-        //$this->setLanguage();
-    }
-
-    public function attach($owner)
-    {
-        parent::attach($owner);
-    }
-
     public function events()
     {
         return [
@@ -29,6 +18,10 @@ class ControllerBehavior extends \yii\base\Behavior
         ];
     }
 
+    /**
+     * Set the language and save in cookie if needed.
+     * First read it from url if available, second from cookies and last from application language.
+     */
     public function setLanguage()
     {
         $language = Yii::$app->request->get('lang');

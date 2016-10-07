@@ -2,9 +2,9 @@
 
 namespace abcms\multilanguage\components;
 
-use yii\base\Component;
+use yii\base\Object;
 
-abstract class MultilanguageAbstract extends Component
+abstract class MultilanguageAbstract extends Object
 {
 
     /**
