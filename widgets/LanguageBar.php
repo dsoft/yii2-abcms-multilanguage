@@ -4,6 +4,7 @@ namespace abcms\multilanguage\widgets;
 
 use Yii;
 use yii\base\Widget;
+use abcms\multilanguage\Multilanguage;
 
 class LanguageBar extends Widget
 {
@@ -33,7 +34,7 @@ class LanguageBar extends Widget
      */
     public function getLanguages()
     {
-        return Yii::$app->multilanguage->getLanguagesList();
+        return Multilanguage::getLanguagesList();
     }
 
 }

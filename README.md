@@ -13,14 +13,11 @@ composer require abcms/yii2-multilanguage:dev-master
 'sourceLanguage' => 'en',
 ```
 
-### 2. Add multilanguage component:
+### 2. Add languages list to params array in params.php
 ```php
-'multilanguage' => [
-  'class' => 'abcms\multilanguage\components\Multilanguage',
-  'languages' => [
+'languages' => [
     'en' => 'English',
     'ar' => 'Arabic',
-  ],
 ],
 ```
 
@@ -35,16 +32,6 @@ This url manager class will automatically add the language to each url.
           '<lang:\w{2}>/<controller>/<action>/' => '<controller>/<action>',
       ],
 ],
-```
-
-### 4. Add multilanguage controller behavior to  your website controllers:
-```php
-public function behaviors()
-{
-  return [
-    \abcms\multilanguage\behaviors\ControllerBehavior::className(),
-  ];
-}
 ```
 
 ### 5. Add language switcher to the layout.

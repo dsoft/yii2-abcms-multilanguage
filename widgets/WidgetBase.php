@@ -7,6 +7,7 @@ use yii\base\Widget;
 use yii\base\InvalidConfigException;
 use abcms\library\fields\Field;
 use abcms\multilanguage\Translation;
+use abcms\multilanguage\Multilanguage;
 
 class WidgetBase extends Widget
 {
@@ -97,7 +98,7 @@ class WidgetBase extends Widget
      */
     private function getAllApplicationLanguages()
     {
-        return Yii::$app->multilanguage->getLanguagesList();;
+        return Multilanguage::getLanguagesList();
     }
 
     /**
