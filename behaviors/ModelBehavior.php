@@ -7,7 +7,7 @@ use yii\db\BaseActiveRecord;
 use abcms\library\models\Model;
 use yii\base\InvalidConfigException;
 use abcms\library\fields\Field;
-use abcms\multilanguage\Translation;
+use abcms\multilanguage\models\Translation;
 
 class ModelBehavior extends \yii\base\Behavior
 {

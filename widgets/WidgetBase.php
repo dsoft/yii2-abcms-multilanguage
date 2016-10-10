@@ -6,7 +6,7 @@ use Yii;
 use yii\base\Widget;
 use yii\base\InvalidConfigException;
 use abcms\library\fields\Field;
-use abcms\multilanguage\Translation;
+use abcms\multilanguage\models\Translation;
 use abcms\multilanguage\Multilanguage;
 
 class WidgetBase extends Widget

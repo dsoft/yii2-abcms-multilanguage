@@ -4,7 +4,7 @@ namespace abcms\multilanguage\widgets;
 
 use Yii;
 use abcms\multilanguage\widgets\WidgetBase;
-use abcms\multilanguage\Translation;
+use abcms\multilanguage\models\Translation;
 use abcms\library\models\Model;
 use abcms\library\fields\Field;
 
