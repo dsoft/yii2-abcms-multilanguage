@@ -24,34 +24,35 @@ class Bootstrap implements BootstrapInterface
      */
     public function setLanguage()
     {
-        $language = Yii::$app->request->get('lang');
-        // If language is available in the url
-        if($language) {
-            // If language code exists in the languages array
-            if(key_exists($language, Multilanguage::getLanguagesList())) {
-                $cookie = new Cookie([
-                    'name' => 'lang',
-                    'value' => $language,
-                    'expire' => time() + 86400 * 180, // 180 days
-                ]);
-                $cookies = Yii::$app->getResponse()->getCookies();
-                $cookies->add($cookie);
+        if(!Yii::$app->request->getIsConsoleRequest()) {
+            $language = Yii::$app->request->get('lang');
+            // If language is available in the url
+            if($language) {
+                // If language code exists in the languages array
+                if(key_exists($language, Multilanguage::getLanguagesList())) {
+                    $cookie = new Cookie([
+                        'name' => 'lang',
+                        'value' => $language,
+                        'expire' => time() + 86400 * 180, // 180 days
+                    ]);
+                    $cookies = Yii::$app->getResponse()->getCookies();
+                    $cookies->add($cookie);
+                }
+                else {
+                    $language = Yii::$app->language;
+                }
             }
             else {
-                $language = Yii::$app->language;
+                $cookies = Yii::$app->getRequest()->getCookies();
+                // If lang cookie already available
+                if($cookies->has('lang')) {
+                    $language = $cookies->getValue('lang');
+                }
+                else {
+                    $language = Yii::$app->language;
+                }
             }
+            Yii::$app->language = $language;
         }
-        else {
-            $cookies = Yii::$app->getRequest()->getCookies();
-            // If lang cookie already available
-            if($cookies->has('lang')) {
-                $language = $cookies->getValue('lang');
-            }
-            else {
-                $language = Yii::$app->language;
-            }
-        }
-        Yii::$app->language = $language;
     }
-
 }
