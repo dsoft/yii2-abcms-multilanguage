@@ -39,7 +39,7 @@ class WidgetBase extends Widget
             throw new InvalidConfigException('"model" property must be set.');
         }
         if(!isset($this->model->attributesForTranslation)) {
-            throw new InvalidConfigException('"model" should implement the multi language behavior: '.\abcms\multilanguage\ModelBehavior::className());
+            throw new InvalidConfigException('"model" should implement the multi language behavior: '.\abcms\multilanguage\behaviors\ModelBehavior::className());
         }
         if(!$this->attributes) {
             $this->attributes = $this->model->attributesForTranslation;
