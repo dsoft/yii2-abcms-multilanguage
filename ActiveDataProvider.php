@@ -11,7 +11,7 @@ class ActiveDataProvider extends \yii\data\ActiveDataProvider
     protected function prepareModels()
     {
         $models = parent::prepareModels();
-        $tModels = Translation::translateMultiple($models, null, false);
+        $tModels =  Multilanguage::translateMultiple($models, null, false);
         return $tModels;
     }
 
