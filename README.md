@@ -43,3 +43,55 @@ or manually:
 ```php
 <a class="<?= (Yii::$app->language == 'en') ? 'active' : ''; ?>" href="<?= Url::current(['lang' => 'en']) ?>">En</a>
 ```
+
+## Enable multi language support in your model and crud:
+
+### 1. Migration:
+```bash
+./yii migrate --migrationPath=@vendor/abcms/yii2-library/migrations
+./yii migrate --migrationPath=@vendor/abcms/yii2-multilanguage/migrations
+```
+
+### 2. Add model behvarior:
+Add the multi language behavior and specify which attributes can be translated and the type for each field. If field type is not specified, text input will be used by default.
+
+```php
+[
+    'class' => \abcms\multilanguage\behaviors\ModelBehavior::className(),
+    'attributes' => [
+        'title',
+        'description:text-area',
+    ],
+],
+```
+
+### 3. Add translation form in the admin panel:
+Add in _form.php
+```php
+<?= \abcms\multilanguage\widgets\TranslationForm::widget(['model' => $model]) ?>
+```
+
+### 4. Add translation detail in the admin panel:
+Add in view.php
+```php
+<?=
+\abcms\multilanguage\widgets\TranslationView::widget([
+    'model' => $model,
+])
+?>
+```
+
+## How to get translated content?
+
+### Get a single model translation for the current language:
+```php
+$translatedModel = $model->translate();
+```
+
+### Get multiple models translation for the current language:
+```php
+use abcms\multilanguage\Multilanguage;
+
+$translatedModels = Multilanguage::translateMultiple($models);
+```
+
