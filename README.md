@@ -2,7 +2,7 @@
 
 ## Install:
 ```bash
-composer require abcms/yii2-multilanguage:dev-master
+composer require abcms/yii2-multilanguage
 ```
 
 ## Enable multi language support in your website:
