@@ -38,11 +38,13 @@ class WidgetBase extends Widget
         if(!$this->model) {
             throw new InvalidConfigException('"model" property must be set.');
         }
-        if(!isset($this->model->attributesForTranslation)) {
-            throw new InvalidConfigException('"model" should implement the multi language behavior: '.\abcms\multilanguage\behaviors\ModelBehavior::className());
-        }
         if(!$this->attributes) {
-            $this->attributes = $this->model->attributesForTranslation;
+            if(!isset($this->model->attributesForTranslation)) {
+                $this->attributes = [];
+            }
+            else{
+                $this->attributes = $this->model->attributesForTranslation;
+            } 
         }
         elseif(!is_array($this->attributes)) {
             throw new InvalidConfigException('"attributes" property should be an array.');
