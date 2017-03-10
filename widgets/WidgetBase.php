@@ -5,22 +5,14 @@ namespace abcms\multilanguage\widgets;
 use Yii;
 use yii\base\Widget;
 use yii\base\InvalidConfigException;
-use abcms\library\fields\Field;
-use abcms\multilanguage\models\Translation;
 use abcms\multilanguage\Multilanguage;
 
 class WidgetBase extends Widget
 {
 
     /**
-     * array of attributes that should be translated/displayed
-     * @var array 
-     */
-    public $attributes;
-
-    /**
      * Model that should be translated
-     * @var ActiveRecord
+     * @var \yii\db\ActiveRecord
      */
     public $model;
 
@@ -37,17 +29,6 @@ class WidgetBase extends Widget
     {
         if(!$this->model) {
             throw new InvalidConfigException('"model" property must be set.');
-        }
-        if(!$this->attributes) {
-            if(!isset($this->model->attributesForTranslation)) {
-                $this->attributes = [];
-            }
-            else{
-                $this->attributes = $this->model->attributesForTranslation;
-            } 
-        }
-        elseif(!is_array($this->attributes)) {
-            throw new InvalidConfigException('"attributes" property should be an array.');
         }
         if($this->languages) {
             if(!$this->validateLanguages($this->languages)) {
@@ -125,43 +106,23 @@ class WidgetBase extends Widget
         $translation = $model->translation($language);
         $fields = $this->returnFields();
         foreach($fields as $key => $originalField) {
-            $field = clone $originalField;
-            $m = new Translation;
-            if(isset($translation[$field->attribute])) {
-                $m->translation = $translation[$field->attribute];
-            }
-            $field->model = $m;
-            $field->language = $language;
-            $field->value = $m->translation;
-            $field->attributeExpression = "[$modelId][{$field->attribute}][$language]translation";
+            $field = clone $originalField;            
+            $field->inputName = "Translation[$modelId][$key][$language]";
+            $field->label = $model->getAttributeLabel($key);
+            $field->value = isset($translation[$key]) ? $translation[$key] : null;
             $fields[$key] = $field;
         }
         return $fields;
     }
 
-    /**
-     * @var array
-     * attribute where Field objects will be saved in [[returnFields()]]
-     */
-    private $_fields = null;
 
     /**
-     * Create Field objects from [[attributes]] and return it once
-     * @return array
+     * Create translation fields
+     * @return array[\abcms\library\fields\Field]
      */
     public function returnFields()
     {
-        if(!$this->_fields) {
-            $attributes = $this->attributes;
-            $fields = [];
-            foreach($attributes as $attribute) {
-                $config = Field::normalizeObject($attribute);
-                $field = Yii::createObject($config);
-                $fields[] = $field;
-            }
-            $this->_fields = $fields;
-        }
-        return $this->_fields;
+        return $this->model->getTranslationFields();
     }
 
 }
