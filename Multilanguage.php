@@ -32,9 +32,9 @@ class Multilanguage extends Object implements MultilanguageInterface
     {
         if(!$lang) {
             $lang = Yii::$app->language;
-            if($lang == Yii::$app->sourceLanguage) {
-                return $models;
-            }
+        }
+        if($lang == Yii::$app->sourceLanguage) {
+            return $models;
         }
         $translation = Translation::translationMultiple($models, $lang);
         $array = [];
