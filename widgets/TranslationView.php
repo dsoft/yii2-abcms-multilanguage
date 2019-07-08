@@ -30,7 +30,7 @@ class TranslationView extends WidgetBase
              */
             $attributes = [];
             foreach($fields as $field) {
-                $attributes[] = $field->detailViewAttribute();
+                $attributes[] = $field->getDetailViewAttribute();
             }
             $attributesArray[$code] = $attributes;
         }
