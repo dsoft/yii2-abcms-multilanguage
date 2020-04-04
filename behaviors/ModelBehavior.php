@@ -9,6 +9,7 @@ use yii\base\InvalidConfigException;
 use abcms\multilanguage\models\Translation;
 use abcms\library\fields\Text;
 use yii\helpers\Inflector;
+use abcms\multilanguage\MultilanguageBase;
 
 class ModelBehavior extends \yii\base\Behavior
 {
@@ -18,9 +19,14 @@ class ModelBehavior extends \yii\base\Behavior
      * @var array 
      */
     public $attributes = null;
+    
+    /**
+     * @var string the Multilanguage application component ID.
+     */
+    public $multilanguageId = 'multilanguage';
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function init()
     {
@@ -31,6 +37,15 @@ class ModelBehavior extends \yii\base\Behavior
         if(!is_array($this->attributes)) {
             throw new InvalidConfigException('"attributes" property should be an array.');
         }
+    }
+    
+    /**
+     * Return the multilanguage component
+     * @return MultilanguageBase
+     */
+    public function getMultilanguage()
+    {
+        return Yii::$app->get($this->multilanguageId);
     }
 
     /**
@@ -126,52 +141,6 @@ class ModelBehavior extends \yii\base\Behavior
     }
 
     /**
-     * Return the translated attributes as array if language is provided, or as multi dimensional array if not provided.
-     * Only translated attributes will be returned.
-     * @param string $lang
-     * @return array
-     */
-    public function translation($lang = null)
-    {
-        $owner = $this->owner;
-        $modelId = $this->returnModelId();
-        $pk = $owner->id;
-        $condition = [
-            'modelId' => $modelId,
-            'pk' => $pk,
-        ];
-        if($lang) {
-            $condition['lang'] = $lang;
-        }
-        $models = Translation::find()->andWhere($condition)->all();
-        $array = [];
-        foreach($models as $model) {
-            $array[$model->lang][$model->attribute] = $model->translation;
-        }
-        return ($lang && isset($array[$lang])) ? $array[$lang] : $array;
-    }
-
-    /**
-     * Clone the owner and replace the translated attributes
-     * @param string $lang
-     * @return ActiveRecord
-     */
-    public function translate($lang = NULL)
-    {
-        $owner = $this->owner;
-        if(!$lang) {
-            $lang = Yii::$app->language;
-            if($lang == Yii::$app->sourceLanguage) {
-                return $owner;
-            }
-        }
-        $attributes = $this->translation($lang);
-        $model = clone $owner;
-        $model->attributes = $attributes;
-        return $model;
-    }
-
-    /**
      * Receive string or array and transform it to an array that can be used to call Yii::createObject() to create a Field class
      * The attribute must be specified in the format of "attribute", "attribute:type" or as an array.
      * Type in "attribute:type" represents the classname as Id, like: text, text-area...
@@ -200,6 +169,18 @@ class ModelBehavior extends \yii\base\Behavior
             return $attribute;
         }
         throw new InvalidConfigException('The attribute must be specified in the format of "attribute", "attribute:type" or as an array');
+    }
+    
+    /**
+     * Return the translated model
+     * @param type $lang
+     * @return \yii\db\ActiveRecord
+     */
+    public function translate($lang = NULL)
+    {
+        $multilanguage = $this->multilanguage;
+        $owner = $this->owner;
+        return $multilanguage->translate($owner, $lang);
     }
 
 }

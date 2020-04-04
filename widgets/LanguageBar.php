@@ -4,17 +4,24 @@ namespace abcms\multilanguage\widgets;
 
 use Yii;
 use yii\base\Widget;
-use abcms\multilanguage\Multilanguage;
+use yii\di\Instance;
+use abcms\multilanguage\MultilanguageBase;
 
 class LanguageBar extends Widget
 {
-
+    
+    /**
+     * @var MultilanguageBase|array|string the Multilanguage object or the Multilanguage application component ID.
+     */
+    public $multilanguage = 'multilanguage';
+    
     /**
      * @inheritdoc
      */
     public function init()
     {
         parent::init();
+        $this->multilanguage = Instance::ensure($this->multilanguage, MultilanguageBase::className());
     }
 
     /**
@@ -22,19 +29,10 @@ class LanguageBar extends Widget
      */
     public function run()
     {
-        $languages = $this->getLanguages();
+        $languages = $this->multilanguage->getLanguages();
         echo $this->render('language-bar', [
             'languages' => $languages,
         ]);
-    }
-
-    /**
-     * Return applications languages array
-     * @return array
-     */
-    public function getLanguages()
-    {
-        return Multilanguage::getLanguagesList();
     }
 
 }

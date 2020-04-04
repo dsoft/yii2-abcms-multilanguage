@@ -105,33 +105,4 @@ class Translation extends \yii\db\ActiveRecord
         return $model;
     }
 
-    /**
-     * Return the translated attributes of [[models]] parameter as array with the pk as key
-     * Only translated attributes will be returned.
-     * @param array $models
-     * @param string $lang
-     * @return array
-     */
-    public static function translationMultiple($models, $lang)
-    {
-        if(isset($models[0])) {
-            $modelId = $models[0]->returnModelId();
-        }
-        else {
-            return $models;
-        }
-        $ids = ArrayHelper::getColumn($models, 'id');
-        $condition = [
-            'modelId' => $modelId,
-            'lang' => $lang,
-            'pk' => $ids,
-        ];
-        $translations = Translation::find()->andWhere($condition)->all();
-        $array = [];
-        foreach($translations as $translation) {
-            $array[$translation->pk][$translation->attribute] = $translation->translation;
-        }
-        return $array;
-    }
-
 }

@@ -17,6 +17,5 @@
     "bin": [
     ],
     "extra": {
-        "bootstrap": "abcms\\multilanguage\\Bootstrap"
     }
 }

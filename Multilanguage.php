@@ -3,51 +3,78 @@
 namespace abcms\multilanguage;
 
 use Yii;
-use yii\base\Object;
 use abcms\multilanguage\models\Translation;
+use yii\helpers\ArrayHelper;
 
 /**
- * MultiLanguage Main Class
+ * MultiLanguage Component Class
  */
-class Multilanguage extends Object implements MultilanguageInterface
+class Multilanguage extends MultilanguageBase
 {
 
     /**
-     * @inheritdoc
+     * @var array Key is the language code and value is the name
      */
-    public static function getLanguagesList()
+    protected $_languages = [];
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getLanguages()
     {
-        return isset(Yii::$app->params['languages']) ? Yii::$app->params['languages'] : [];
+        return $this->_languages;
     }
 
     /**
-     * Return translated models
-     * Clone the [[models]] objects and replace the translated attributes
-     * @param array $models
-     * @param string $lang The language that models should be translated to
-     * @param boolean $onlyTranslatedModels Whether to include only translated models or all models
-     * @return array
+     * Set the languages attribute
+     * @param array $languages
      */
-    public static function translateMultiple($models, $lang = NULL, $onlyTranslatedModels = true)
+    public function setLanguages($languages)
     {
-        if(!$lang) {
-            $lang = Yii::$app->language;
+        $this->_languages = $languages;
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function translation($model, $lang)
+    {
+        $modelId = $model->returnModelId();
+        $pk = $model->id;
+        $condition = [
+            'modelId' => $modelId,
+            'pk' => $pk,
+            'lang' => $lang,
+        ];
+        $models = Translation::find()->andWhere($condition)->all();
+        $array = [];
+        foreach($models as $model) {
+            $array[$model->attribute] = $model->translation;
         }
-        if($lang == Yii::$app->sourceLanguage) {
+        return $array;
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function translationMultiple($models, $lang)
+    {
+        if(isset($models[0])) {
+            $modelId = $models[0]->returnModelId();
+        }
+        else {
             return $models;
         }
-        $translation = Translation::translationMultiple($models, $lang);
+        $ids = ArrayHelper::getColumn($models, 'id');
+        $condition = [
+            'modelId' => $modelId,
+            'lang' => $lang,
+            'pk' => $ids,
+        ];
+        $translations = Translation::find()->andWhere($condition)->all();
         $array = [];
-        foreach($models as $key => $model) {
-            if(isset($translation[$model->id])) {
-                $copy = clone $model;
-                $copy->attributes = $translation[$model->id];
-                $array[] = $copy;
-            }
-            elseif(!$onlyTranslatedModels) {
-                $copy = clone $model;
-                $array[] = $copy;
-            }
+        foreach($translations as $translation) {
+            $array[$translation->pk][$translation->attribute] = $translation->translation;
         }
         return $array;
     }

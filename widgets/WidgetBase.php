@@ -5,7 +5,8 @@ namespace abcms\multilanguage\widgets;
 use Yii;
 use yii\base\Widget;
 use yii\base\InvalidConfigException;
-use abcms\multilanguage\Multilanguage;
+use abcms\multilanguage\MultilanguageBase;
+use yii\di\Instance;
 
 class WidgetBase extends Widget
 {
@@ -21,12 +22,20 @@ class WidgetBase extends Widget
      * @var array
      */
     public $languages;
+    
+    /**
+     * @var MultilanguageBase|array|string the Multilanguage object or the Multilanguage application component ID.
+     */
+    public $multilanguage = 'multilanguage';
 
     /**
      * @inheritdoc
      */
     public function init()
     {
+        parent::init();
+        
+        $this->multilanguage = Instance::ensure($this->multilanguage, MultilanguageBase::className());
         if(!$this->model) {
             throw new InvalidConfigException('"model" property must be set.');
         }
@@ -38,7 +47,6 @@ class WidgetBase extends Widget
         else {
             $this->languages = $this->getAllTranslationLanguages();
         }
-        parent::init();
     }
 
     /**
@@ -81,7 +89,7 @@ class WidgetBase extends Widget
      */
     private function getAllApplicationLanguages()
     {
-        return Multilanguage::getLanguagesList();
+        return $this->multilanguage->getLanguages();
     }
 
     /**
@@ -103,7 +111,7 @@ class WidgetBase extends Widget
     {
         $model = $this->model;
         $modelId = $model->returnModelId();
-        $translation = $model->translation($language);
+        $translation = $this->multilanguage->translation($model, $language);
         $fields = $this->returnFields();
         foreach($fields as $key => $originalField) {
             $field = clone $originalField;            
@@ -118,7 +126,7 @@ class WidgetBase extends Widget
 
     /**
      * Create translation fields
-     * @return array[\abcms\library\fields\Field]
+     * @return \abcms\library\fields\Field[]
      */
     public function returnFields()
     {
