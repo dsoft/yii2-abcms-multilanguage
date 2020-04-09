@@ -78,5 +78,26 @@ class Multilanguage extends MultilanguageBase
         }
         return $array;
     }
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function saveTranslation($model, $data)
+    {
+        $languages = $this->getTranslationLanguages();
+        $fields = $model->getTranslationFields();
+        $modelId = $model->returnModelId();
+        $pk = $model->id;
+        foreach($fields as $attribute => $field)
+        {
+            foreach($languages as $lang => $langName)
+            {
+                $inputName = $model->getTranslationInputName($attribute, $lang);
+                if(isset($data[$inputName])){
+                    Translation::commit($modelId, $pk, $attribute, $lang, $data[$inputName]);
+                }
+            }
+        }
+    }
 
 }

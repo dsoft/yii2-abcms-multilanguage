@@ -3,13 +3,13 @@
 namespace abcms\multilanguage\behaviors;
 
 use Yii;
-use yii\db\BaseActiveRecord;
 use abcms\library\models\Model;
 use yii\base\InvalidConfigException;
-use abcms\multilanguage\models\Translation;
 use abcms\library\fields\Text;
 use yii\helpers\Inflector;
 use abcms\multilanguage\MultilanguageBase;
+use abcms\library\fields\Field;
+use yii\db\BaseActiveRecord;
 
 class ModelBehavior extends \yii\base\Behavior
 {
@@ -24,6 +24,12 @@ class ModelBehavior extends \yii\base\Behavior
      * @var string the Multilanguage application component ID.
      */
     public $multilanguageId = 'multilanguage';
+    
+    /**
+     *
+     * @var boolean Set to true if you want to automatically validate and save the translation data using insert and update events
+     */
+    public $automaticTranslationSaving = false;
 
     /**
      * {@inheritdoc}
@@ -40,48 +46,71 @@ class ModelBehavior extends \yii\base\Behavior
     }
     
     /**
+     * @inheritdocs
+     */
+    public function events()
+    {
+        return [
+            BaseActiveRecord::EVENT_AFTER_VALIDATE => 'validateTranslation',
+            BaseActiveRecord::EVENT_BEFORE_INSERT => 'beforeOwnerSave',
+            BaseActiveRecord::EVENT_BEFORE_UPDATE => 'beforeOwnerSave',
+            BaseActiveRecord::EVENT_AFTER_INSERT => 'saveTranslation',
+            BaseActiveRecord::EVENT_AFTER_UPDATE => 'saveTranslation',
+        ];
+    }
+    
+
+    /**
+     * Function called after validating the owner.
+     * It validates the translation model
+     */
+    public function validateTranslation()
+    {
+        if($this->automaticTranslationSaving){
+            $model = $this->getTranslationModel();
+            if($model->load(Yii::$app->request->post())){
+                $model->isLoaded = true;
+                $model->validate();
+            }
+        }
+    }
+    
+    /**
+     * Function called before saving the owner's data.
+     * If the translation model has errors, the event will stop the owner insert or update call
+     * @param \yii\base\ModelEvent $event
+     */
+    public function beforeOwnerSave($event)
+    {
+        $model = $this->getTranslationModel();
+        if(!$model->isLoaded && $model->load(Yii::$app->request->post())){
+            $model->isLoaded = true;
+        }
+        if($model->hasErrors())
+        {
+            $event->isValid = false;
+        }
+    }
+    
+    /**
+     * Function called in EVENT_AFTER_INSERT and EVENT_AFTER_UPDATE to save the translation data
+     */
+    public function saveTranslation()
+    {
+        if($this->automaticTranslationSaving){
+            $model = $this->getTranslationModel();
+            $this->saveTranslationData($model->attributes);
+        }
+    }
+
+    
+    /**
      * Return the multilanguage component
      * @return MultilanguageBase
      */
     public function getMultilanguage()
     {
         return Yii::$app->get($this->multilanguageId);
-    }
-
-    /**
-     * @inheritdocs
-     */
-    public function events()
-    {
-        return [
-            BaseActiveRecord::EVENT_AFTER_INSERT => 'saveTranslation',
-            BaseActiveRecord::EVENT_AFTER_UPDATE => 'saveTranslation',
-        ];
-    }
-
-    /**
-     * Save translations for each translation attributes from POST
-     */
-    public function saveTranslation()
-    {
-        $post = Yii::$app->request->post();
-        if(isset($post['Translation'])) {
-            /** @var ActiveRecord $owner */
-            $owner = $this->owner;
-            $fields = $this->getTranslationFields();
-            $modelId = $this->returnModelId();
-            foreach($fields as $attributeName => $field) {
-                if(isset($post['Translation'][$modelId][$attributeName])) {
-                    foreach($post['Translation'][$modelId][$attributeName] as $lang => $value) {
-                        $field->value = $value;
-                        $field->inputName = "Translation[$modelId][$attributeName][$lang]";
-                        if($field->validate()) {
-                            Translation::commit($modelId, $owner->id, $attributeName, $lang, $field->value);
-                        }
-                    }
-                }
-            }
-        }
     }
 
     /**
@@ -122,7 +151,7 @@ class ModelBehavior extends \yii\base\Behavior
     /**
      * Return Field objects array created from the [[attributes]] property
      * key is the attribute name and value is the Field object.
-     * @return array[\abcms\library\fields\Field]
+     * @return \abcms\library\fields\Field[]
      */
     public function getTranslationFields()
     {
@@ -138,6 +167,39 @@ class ModelBehavior extends \yii\base\Behavior
             $this->_translationFields = $array;
         }
         return $this->_translationFields;
+    }
+    
+    /**
+     * Return translation fields for a certain language after setting inputName, label, and value
+     * @param string $language
+     * @return array
+     */
+    public function getLanguageFields($language)
+    {
+        $fields = $this->getTranslationFields();
+        $translation = $this->getMultilanguage()->translation($this->owner, $language);
+        $array = [];
+        foreach ($fields as $attribute => $originalField) {
+            $value = isset($translation[$attribute]) ? $translation[$attribute] : null;
+            $inputName = $this->getTranslationInputName($attribute, $language);
+            $field = clone $originalField;
+            $field->inputName = $inputName;
+            $field->label = $this->owner->getAttributeLabel($attribute);
+            $field->value = $value;
+            $array[] = $field;
+        }
+        return $array;
+    }
+    
+    /**
+     * Return the input name of the translation field
+     * @param string $attribute
+     * @param string $language
+     * @return string
+     */
+    public function getTranslationInputName($attribute, $language)
+    {
+        return $attribute.'_'.$language;
     }
 
     /**
@@ -178,9 +240,44 @@ class ModelBehavior extends \yii\base\Behavior
      */
     public function translate($lang = NULL)
     {
-        $multilanguage = $this->multilanguage;
+        $multilanguage = $this->getMultilanguage();
         $owner = $this->owner;
         return $multilanguage->translate($owner, $lang);
+    }
+    
+    protected $_translationModel;
+    
+    /**
+     * Return a DynamicModel with all translation languages fields
+     * @return \yii\base\DynamicModel
+     */
+    public function getTranslationModel()
+    {
+        if(!$this->_translationModel){
+            $multilanguage = $this->getMultilanguage();
+            $languages = $multilanguage->getTranslationLanguages();
+            $allLanguagesFields = [];
+            foreach($languages as $languageCode => $languageName)
+            {
+                $allLanguagesFields = array_merge($allLanguagesFields, $this->getLanguageFields($languageCode));
+            }
+            $model = Field::getDynamicModel($allLanguagesFields);
+            $model->defineAttribute('isLoaded', false);
+            $this->_translationModel = $model;
+        }
+        
+        return $this->_translationModel;        
+    }
+    
+    /**
+     * Save translation data
+     * @param array $data An array where each key has the following format attributeName_language 
+     * and value is the translation that should be saved
+     */
+    public function saveTranslationData($data)
+    {
+        $multilanguage = $this->getMultilanguage();
+        $multilanguage->saveTranslation($this->owner, $data);
     }
 
 }

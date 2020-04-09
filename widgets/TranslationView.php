@@ -24,7 +24,7 @@ class TranslationView extends WidgetBase
         $languages = $this->languages;
         $attributesArray = [];
         foreach($languages as $code => $language) {
-            $fields = $this->createLanguageFields($code);
+            $fields = $this->model->getLanguageFields($code);
             /**
              * @var array Array that should be used in the Detail View Widget 'attribtues' property
              */

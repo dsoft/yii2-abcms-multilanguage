@@ -5,7 +5,7 @@ foreach($languages as $code => $language):
         ?>
         <h2><?= $language ?> Translation</h2>
         <?php foreach($fields as $field): ?>
-            <?= $field->renderField() ?>
+            <?= $field->renderActiveField($form->field($dynamicModel, $field->inputName)); ?>
         <?php endforeach; ?>
         <?php
     endif;

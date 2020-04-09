@@ -45,7 +45,7 @@ class WidgetBase extends Widget
             }
         }
         else {
-            $this->languages = $this->getAllTranslationLanguages();
+            $this->languages = $this->multilanguage->getTranslationLanguages();
         }
     }
 
@@ -67,70 +67,6 @@ class WidgetBase extends Widget
             return false;
         }
         return true;
-    }
-
-    /**
-     * Return all languages of the application except for the default language
-     * @return array
-     */
-    private function getAllTranslationLanguages()
-    {
-        $languages = $this->getAllApplicationLanguages();
-        $default = $this->getDefaultLanguage();
-        if(isset($languages[$default])){
-            unset($languages[$default]);
-        }
-        return $languages;
-    }
-
-    /**
-     * Return all application languages
-     * @return array
-     */
-    private function getAllApplicationLanguages()
-    {
-        return $this->multilanguage->getLanguages();
-    }
-
-    /**
-     * Default language
-     * @return string
-     */
-    private function getDefaultLanguage()
-    {
-        $lang = Yii::$app->sourceLanguage;
-        return $lang;
-    }
-
-    /**
-     * return the Field objects related to a certain language
-     * @param string $language
-     * @return array
-     */
-    public function createLanguageFields($language)
-    {
-        $model = $this->model;
-        $modelId = $model->returnModelId();
-        $translation = $this->multilanguage->translation($model, $language);
-        $fields = $this->returnFields();
-        foreach($fields as $key => $originalField) {
-            $field = clone $originalField;            
-            $field->inputName = "Translation[$modelId][$key][$language]";
-            $field->label = $model->getAttributeLabel($key);
-            $field->value = isset($translation[$key]) ? $translation[$key] : null;
-            $fields[$key] = $field;
-        }
-        return $fields;
-    }
-
-
-    /**
-     * Create translation fields
-     * @return \abcms\library\fields\Field[]
-     */
-    public function returnFields()
-    {
-        return $this->model->getTranslationFields();
     }
 
 }

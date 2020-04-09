@@ -103,6 +103,20 @@ abstract class MultilanguageBase extends Component
     }
     
     /**
+     * Return all languages of the application except for the default language
+     * @return array
+     */
+    public function getTranslationLanguages()
+    {
+        $languages = $this->getLanguages();
+        $default = Yii::$app->sourceLanguage;
+        if(isset($languages[$default])){
+            unset($languages[$default]);
+        }
+        return $languages;
+    }
+    
+    /**
      * Return the languages array where keys are the language code and values represents the name of the language.
      * @return array Languages array
      */
@@ -111,7 +125,7 @@ abstract class MultilanguageBase extends Component
     /**
      * Return the translated attributes of [[model]] parameter as array with the attribute name as key
      * Only translated attributes will be returned.
-     * @param array $models
+     * @param \yii\db\ActiveRecord $model
      * @return array
      */
     abstract public function translation($model, $lang);
@@ -124,5 +138,12 @@ abstract class MultilanguageBase extends Component
      * @return array
      */
     abstract public function translationMultiple($models, $lang);
+    
+    /**
+     * Save translation for one attribute
+     * @param \yii\db\ActiveRecord $model
+     * @param array $data
+     */
+    abstract public function saveTranslation($model, $data);
 
 }
