@@ -1,28 +1,53 @@
-# Yii2 ABCMS Multi Language 
+# Yii2 ABCMS Multi-Language Component
+
+## Features:
+* Add a language bar widget to your website
+* Translate models
+* Manage languages from database or configuration
+* Message translation CRUD
 
 ## Install:
 ```bash
-composer require abcms/yii2-multilanguage
+composer require abcms/yii2-library:dev-master
+composer require abcms/yii2-multilanguage:dev-master
 ```
 
-## Enable multi language support in your website:
+## Enable multi-language support in your website:
 
 ### 1. Add language and sourceLanguage attributes to your config array.
 ```php
-'language' => 'en',
-'sourceLanguage' => 'en',
+$config = [
+    ......
+    'language' => 'en',
+    'sourceLanguage' => 'en',
+    ......
+];
 ```
 
-### 2. Add languages list to params array in params.php
+### 2. Add multilanguage component
 ```php
-'languages' => [
-    'en' => 'English',
-    'ar' => 'Arabic',
-],
+[
+    'components' => [
+        ......
+        'multilanguage' => [
+            'class' => 'abcms\multilanguage\Multilanguage',
+            'languages' => [
+                'en' => 'English',
+                'ar' => 'Arabic',
+                'fr' => 'French',
+            ],
+        ],
+    ],
+]
 ```
 
-### 3. Add custom url manager:
-This url manager class will automatically add the language to each url.
+Add the component to the bootstrap array to allow it to read and set the language from cookies and URL: 
+```php
+'bootstrap' => ['log', 'multilanguage'],
+```
+
+### 3. Add custom URL manager:
+This URL manager class will automatically add the language to each URL.
 ```php
 'urlManager' => [
       'class' => abcms\multilanguage\UrlManager::className(),
@@ -34,8 +59,8 @@ This url manager class will automatically add the language to each url.
 ],
 ```
 
-### 5. Add language switcher to the layout.
-Using language bar widget:
+### 4. Add a language switcher to the layout.
+Using the language bar widget:
 ```php
 <?= abcms\multilanguage\widgets\LanguageBar::widget() ?>
 ```
@@ -44,7 +69,7 @@ or manually:
 <a class="<?= (Yii::$app->language == 'en') ? 'active' : ''; ?>" href="<?= Url::current(['lang' => 'en']) ?>">En</a>
 ```
 
-## Enable multi language support in your model and crud:
+## Enable translation for your models and CRUDs:
 
 ### 1. Migration:
 ```bash
@@ -52,8 +77,10 @@ or manually:
 ./yii migrate --migrationPath=@vendor/abcms/yii2-multilanguage/migrations
 ```
 
-### 2. Add model behvarior:
-Add the multi language behavior and specify which attributes can be translated and the type for each field. If field type is not specified, text input will be used by default.
+> You can use [abcms/yii2-generators](https://github.com/dsoft/yii2-abcms-generators) to generate a custom model and CRUD or continue with the manual steps below.
+
+### 2. Add model behavior:
+Add the multi-language behavior and specify which attributes can be translated and the type for each field. If the field type is not specified, text input will be used by default.
 
 ```php
 [
@@ -66,19 +93,25 @@ Add the multi language behavior and specify which attributes can be translated a
 ```
 
 ### 3. Add translation form in the admin panel:
-Add in _form.php
+Add in _form.php:
 ```php
-<?= \abcms\multilanguage\widgets\TranslationForm::widget(['model' => $model]) ?>
+<?= \abcms\multilanguage\widgets\TranslationForm::widget(['model' => $model, 'form' => $form]) ?>
 ```
 
-### 4. Add translation detail in the admin panel:
-Add in view.php
+### 4. Add translation detail view in the admin panel:
+Add in view.php:
 ```php
 <?=
 \abcms\multilanguage\widgets\TranslationView::widget([
     'model' => $model,
 ])
 ?>
+```
+
+### 5. Enable automatic translation saving in the controller
+Add in Controller create and update actions:
+```php
+$model->automaticTranslationSaving = true;
 ```
 
 ## How to get translated content?
@@ -90,8 +123,6 @@ $translatedModel = $model->translate();
 
 ### Get multiple models translation for the current language:
 ```php
-use abcms\multilanguage\Multilanguage;
-
-$translatedModels = Multilanguage::translateMultiple($models);
+$translatedModels = Yii::$app->multilanguage->translateMultiple($models);
 ```
 
