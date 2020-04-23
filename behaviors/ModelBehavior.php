@@ -11,7 +11,7 @@ use abcms\multilanguage\MultilanguageBase;
 use abcms\library\fields\Field;
 use yii\db\BaseActiveRecord;
 
-class ModelBehavior extends \yii\base\Behavior
+class ModelBehavior extends \yii\base\Behavior implements MultilanguageInterface
 {
 
     /**
@@ -103,7 +103,6 @@ class ModelBehavior extends \yii\base\Behavior
         }
     }
 
-    
     /**
      * Return the multilanguage component
      * @return MultilanguageBase
@@ -172,7 +171,7 @@ class ModelBehavior extends \yii\base\Behavior
     /**
      * Return translation fields for a certain language after setting inputName, label, and value
      * @param string $language
-     * @return array
+     * @return \abcms\library\fields\Field[]
      */
     public function getLanguageFields($language)
     {
