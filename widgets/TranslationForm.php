@@ -8,7 +8,7 @@ use yii\base\InvalidConfigException;
 
 class TranslationForm extends WidgetBase
 {
-    
+
     /**
      * ActiveForm that the active fields belongs to
      * @var \yii\widgets\ActiveForm
@@ -21,7 +21,7 @@ class TranslationForm extends WidgetBase
     public function init()
     {
         parent::init();
-        if(!$this->form) {
+        if (!$this->form) {
             throw new InvalidConfigException('"form" property must be set.');
         }
     }
@@ -32,19 +32,31 @@ class TranslationForm extends WidgetBase
     public function run()
     {
         $languages = $this->languages;
+
         /**
-         * @var array array containing language code as key and related fields as value
+         * @var array array containing fields array, dynamic model, and title for each model.
          */
-        $fieldsArray = [];
-        foreach($languages as $key => $language) {
-            $fields = $this->model->getLanguageFields($key);
-            $fieldsArray[$key] = $fields;
+        $modelsArray = [];
+        foreach ($this->models as $modelTitle => $model) {
+            /**
+             * @var array array containing language code as key and related fields as value
+             */
+            $fieldsArray = [];
+            foreach ($languages as $key => $language) {
+                $fields = $model->getLanguageFields($key);
+                $fieldsArray[$key] = $fields;
+            }
+            $dynamicModel = $model->getTranslationModel();
+            $title = is_string($modelTitle) ? $modelTitle : null;
+            $modelsArray[] = [
+                'fieldsArray' => $fieldsArray,
+                'dynamicModel' => $dynamicModel,
+                'title' => $title,
+            ];
         }
-        $dynamicModel = $this->model->getTranslationModel();
         echo $this->render('translation-form', [
             'languages' => $languages,
-            'fieldsArray' => $fieldsArray,
-            'dynamicModel' => $dynamicModel,
+            'modelsArray' => $modelsArray,
             'form' => $this->form,
         ]);
     }

@@ -22,21 +22,31 @@ class TranslationView extends WidgetBase
     public function run()
     {
         $languages = $this->languages;
-        $attributesArray = [];
-        foreach($languages as $code => $language) {
-            $fields = $this->model->getLanguageFields($code);
-            /**
-             * @var array Array that should be used in the Detail View Widget 'attribtues' property
-             */
-            $attributes = [];
-            foreach($fields as $field) {
-                $attributes[] = $field->getDetailViewAttribute();
+        $modelsArray = [];
+        foreach($this->models as $modelTitle => $model) {
+            $attributesArray = [];
+            foreach($languages as $code => $language) {
+                $fields = $model->getLanguageFields($code);
+                /**
+                 * @var array Array that should be used in the Detail View Widget 'attribtues' property
+                 */
+                $attributes = [];
+                foreach($fields as $field) {
+                    $attributes[] = $field->getDetailViewAttribute();
+                }
+                $attributesArray[$code] = $attributes;
             }
-            $attributesArray[$code] = $attributes;
+            
+            $modelsArray[] = [
+                'attributesArray' => $attributesArray,
+                'title' => is_string($modelTitle) ? $modelTitle : null,
+            ];
         }
+        
+        
         echo $this->render('detail-view', [
             'languages' => $languages,
-            'attributesArray'=>$attributesArray,
+            'modelsArray'=> $modelsArray,
         ]);
     }
 

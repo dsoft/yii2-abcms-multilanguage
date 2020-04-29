@@ -7,15 +7,22 @@ use yii\base\Widget;
 use yii\base\InvalidConfigException;
 use abcms\multilanguage\MultilanguageBase;
 use yii\di\Instance;
+use yii\db\ActiveRecord;
 
 class WidgetBase extends Widget
 {
 
     /**
      * Model that should be translated
-     * @var \yii\db\ActiveRecord
+     * @var ActiveRecord
      */
     public $model;
+    
+    /**
+     * Models that should be translated
+     * @var ActiveRecord[]
+     */
+    public $models;
 
     /**
      * Languages list that should be used for translation/display
@@ -36,8 +43,11 @@ class WidgetBase extends Widget
         parent::init();
         
         $this->multilanguage = Instance::ensure($this->multilanguage, MultilanguageBase::className());
-        if(!$this->model) {
-            throw new InvalidConfigException('"model" property must be set.');
+        if(!$this->model && !$this->models) {
+            throw new InvalidConfigException('"model" or "models" properties must be set.');
+        }
+        if($this->model) {
+            $this->models = [$this->model];
         }
         if($this->languages) {
             if(!$this->validateLanguages($this->languages)) {
