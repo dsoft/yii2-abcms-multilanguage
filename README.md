@@ -54,7 +54,7 @@ This URL manager class will automatically add the language to each URL.
       'enablePrettyUrl' => true,
       'showScriptName' => false,
       'rules' => [
-          '<lang:\w{2}>/<controller>/<action>/' => '<controller>/<action>',
+          '<lang:([a-z]{2,3}(-[A-Z]{2})?)>/<controller>/<action>/' => '<controller>/<action>',
       ],
 ],
 ```
@@ -72,10 +72,20 @@ or manually:
 ## Enable translation for your models and CRUDs:
 
 ### 1. Migration:
-```bash
-./yii migrate --migrationPath=@vendor/abcms/yii2-library/migrations
-./yii migrate --migrationPath=@vendor/abcms/yii2-multilanguage/migrations
+1- Add the migration namespaces in the console.php configuration:
+```php
+'controllerMap' => [
+    'migrate' => [
+        'class' => 'yii\console\controllers\MigrateController',
+        'migrationNamespaces' => [
+            'abcms\library\migrations',
+            'abcms\multilanguage\migrations',
+        ],
+    ],
+],
 ```
+
+2- Run `./yii migrate`
 
 > You can use [abcms/yii2-generators](https://github.com/dsoft/yii2-abcms-generators) to generate a custom model and CRUD or continue with the manual steps below.
 

@@ -198,7 +198,7 @@ class ModelBehavior extends \yii\base\Behavior implements MultilanguageInterface
      */
     public function getTranslationInputName($attribute, $language)
     {
-        return $attribute.'_'.$language;
+        return $attribute.'_'.str_replace('-', '_', $language);
     }
 
     /**
