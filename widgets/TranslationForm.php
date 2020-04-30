@@ -44,15 +44,19 @@ class TranslationForm extends WidgetBase
             $fieldsArray = [];
             foreach ($languages as $key => $language) {
                 $fields = $model->getLanguageFields($key);
-                $fieldsArray[$key] = $fields;
+                if($fields) {
+                    $fieldsArray[$key] = $fields;
+                }
             }
-            $dynamicModel = $model->getTranslationModel();
-            $title = is_string($modelTitle) ? $modelTitle : null;
-            $modelsArray[] = [
-                'fieldsArray' => $fieldsArray,
-                'dynamicModel' => $dynamicModel,
-                'title' => $title,
-            ];
+            if($fieldsArray) {
+                $dynamicModel = $model->getTranslationModel();
+                $title = is_string($modelTitle) ? $modelTitle : null;
+                $modelsArray[] = [
+                    'fieldsArray' => $fieldsArray,
+                    'dynamicModel' => $dynamicModel,
+                    'title' => $title,
+                ];
+            }
         }
         echo $this->render('translation-form', [
             'languages' => $languages,
