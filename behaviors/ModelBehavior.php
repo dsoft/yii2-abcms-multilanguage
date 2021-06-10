@@ -82,13 +82,15 @@ class ModelBehavior extends \yii\base\Behavior implements MultilanguageInterface
      */
     public function beforeOwnerSave($event)
     {
-        $model = $this->getTranslationModel();
-        if(!$model->isLoaded && $model->load(Yii::$app->request->post())){
-            $model->isLoaded = true;
-        }
-        if($model->hasErrors())
-        {
-            $event->isValid = false;
+        if($this->automaticTranslationSaving){
+            $model = $this->getTranslationModel();
+            if(!$model->isLoaded && $model->load(Yii::$app->request->post())){
+                $model->isLoaded = true;
+            }
+            if($model->hasErrors())
+            {
+                $event->isValid = false;
+            }
         }
     }
     
@@ -225,7 +227,7 @@ class ModelBehavior extends \yii\base\Behavior implements MultilanguageInterface
         }
         if(is_array($attribute)) {
             if(!isset($attribute['class'])) {
-                $attribute['class'] = TextInput::className();
+                $attribute['class'] = Text::className();
             }
             return $attribute;
         }
